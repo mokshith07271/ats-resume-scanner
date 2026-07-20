@@ -43,7 +43,7 @@ export class ResumeRepository {
     parsedLanguages?: string[];
   }) {
     return prisma.resume.create({
-      data,
+      data: data as any,
       include: {
         user: true,
       },

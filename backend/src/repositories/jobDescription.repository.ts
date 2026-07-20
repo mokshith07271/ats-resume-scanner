@@ -29,7 +29,7 @@ export class JobDescriptionRepository {
     skills?: string[];
   }) {
     return prisma.jobDescription.create({
-      data,
+      data: data as any,
       include: {
         user: true,
       },

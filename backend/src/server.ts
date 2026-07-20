@@ -35,7 +35,6 @@ app.use(
 );
 
 // Static uploads directory with inline PDF headers
-const path = require('path');
 const uploadsPaths = [
   path.join(__dirname, '../uploads'),
   path.join(__dirname, '../../uploads'),
