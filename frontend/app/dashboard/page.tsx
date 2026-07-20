@@ -144,7 +144,7 @@ export default function DashboardPage() {
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-3xl font-bold mb-1">Welcome back, {user.displayName || user.email?.split('@')[0] || 'User'}!</h2>
-            <p className="text-muted-foreground">Here's an overview of your resume scans and account settings</p>
+            <p className="text-muted-foreground">Here&apos;s an overview of your resume scans and account settings</p>
           </div>
         </div>
 

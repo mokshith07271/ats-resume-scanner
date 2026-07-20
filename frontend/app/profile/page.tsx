@@ -233,7 +233,7 @@ export default function ProfilePage() {
             ) : (
               <div className="p-4 bg-card border border-red-300 rounded-lg space-y-3 max-w-md">
                 <p className="text-xs font-bold text-red-600 dark:text-red-400">
-                  ⚠️ To confirm deletion, type <span className="underline uppercase font-extrabold text-foreground">"delete"</span> in the text field below:
+                  ⚠️ To confirm deletion, type <span className="underline uppercase font-extrabold text-foreground">&quot;delete&quot;</span> in the text field below:
                 </p>
 
                 <div className="space-y-1.5">
