@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  password        String?
+  name            String?
+  photo           String?
+  firebaseUid     String?          @unique
+  role            String           @default("USER")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  resumes         Resume[]
+  jobDescriptions JobDescription[]
+  scanHistory     ScanHistory[]
+}
+
+model Resume {
+  id                   String    @id @default(uuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName             String
+  fileType             String
+  fileUrl              String
+  fileSize             Int
+  parsedName           String?
+  parsedEmail          String?
+  parsedPhone          String?
+  parsedSkills         String?
+  parsedExperience     String?
+  parsedEducation      String?
+  parsedProjects       String?
+  parsedCertifications String?
+  parsedLanguages      String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  scans                Scan[]
+
+  @@index([userId])
+}
+
+model JobDescription {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  company      String?
+  description  String
+  requirements String?
+  skills       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  scans        Scan[]
+
+  @@index([userId])
+}
+
+model Scan {
+  id                   String          @id @default(uuid())
+  resumeId             String
+  resume               Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobDescriptionId     String?
+  jobDescription       JobDescription? @relation(fields: [jobDescriptionId], references: [id], onDelete: SetNull)
+  status               String          @default("COMPLETED")
+  overallScore         Float?
+  formattingScore      Float?
+  keywordScore         Float?
+  skillScore           Float?
+  experienceScore      Float?
+  educationScore       Float?
+  achievementsScore    Float?
+  missingKeywords      String?
+  weakBulletPoints     String?
+  grammarSuggestions   String?
+  resumeSummary        String?
+  improvedBulletPoints String?
+  atsRecommendations   String?
+  matchPercentage      Float?
+  matchReasons         String?
+  missingSkills        String?
+  matchingSkills       String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  scanHistory          ScanHistory?
+
+  @@index([resumeId])
+  @@index([jobDescriptionId])
+}
+
+model ScanHistory {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanId        String   @unique
+  scan          Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  version       Int      @default(1)
+  previousScore Float?
+  currentScore  Float?
+  improvements  String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+}
