@@ -24,18 +24,14 @@ export default function LoginPage() {
     }
   }, [user, loading, router]);
 
-  const handleGoogleAuth = async () => {
-    try {
-      setErrorMsg('');
-      setIsSubmitting(true);
-      await loginWithGoogle();
-      router.push('/dashboard');
-    } catch (error: any) {
+  const handleGoogleAuth = () => {
+    setErrorMsg('');
+    setIsSubmitting(true);
+    loginWithGoogle().catch((error: any) => {
       console.error('Google auth failed:', error);
       setErrorMsg(error?.message || 'Google authentication failed');
-    } finally {
       setIsSubmitting(false);
-    }
+    });
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {

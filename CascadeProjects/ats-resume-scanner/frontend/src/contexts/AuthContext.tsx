@@ -64,14 +64,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const loginWithGoogle = async () => {
-    try {
-      // Direct redirect OAuth eliminates popup-blocked errors 100%
-      await signInWithRedirect(auth, googleProvider);
-    } catch (error: any) {
-      console.error('Google auth error:', error);
-      throw error;
-    }
+  const loginWithGoogle = () => {
+    // Synchronous execution inside click gesture prevents pop-up/redirect blockers
+    return signInWithRedirect(auth, googleProvider);
   };
 
   const loginWithEmail = async (email: string, password: string) => {
