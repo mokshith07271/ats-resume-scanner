@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   User,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   createUserWithEmailAndPassword,
@@ -67,15 +66,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      // Direct redirect OAuth eliminates popup-blocked errors 100%
+      await signInWithRedirect(auth, googleProvider);
     } catch (error: any) {
-      if (error?.code === 'auth/popup-blocked') {
-        console.warn('Popup blocked, falling back to redirect auth...');
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        console.error('Google auth error:', error);
-        throw error;
-      }
+      console.error('Google auth error:', error);
+      throw error;
     }
   };
 
