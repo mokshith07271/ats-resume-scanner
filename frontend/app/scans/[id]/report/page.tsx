@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,9 +10,9 @@ import {
   GraduationCap, Wrench, Layout, ChevronLeft, ChevronRight, Eye, CheckCircle2, AlertTriangle, ShieldCheck, Target, TrendingUp, HelpCircle, MessageSquareText, Check, AlertCircle, Edit3
 } from 'lucide-react';
 
-export default function ReportPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = React.use(params);
-  const scanId = resolvedParams.id;
+export default function ReportPage() {
+  const params = useParams();
+  const scanId = params?.id as string;
   const { user, loading } = useAuth();
   const router = useRouter();
   
