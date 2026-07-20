@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String?
+  name          String?
+  photo         String?
+  firebaseUid   String?   @unique
+  role          String    @default("USER")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  resumes       Resume[]
+  jobDescriptions JobDescription[]
+  scans         Scan[]
+}
+
+model Resume {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName      String
+  fileType      String
+  fileUrl       String
+  fileSize      Int
+  parsedData    String?   // JSON string
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  scans         Scan[]
+
+  @@index([userId])
+}
+
+model JobDescription {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String
+  company       String?
+  description   String
+  requirements  String?   // JSON array as string
+  skills        String?   // JSON array as string
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  scans         Scan[]
+
+  @@index([userId])
+}
+
+model Scan {
+  id                    String    @id @default(uuid())
+  resumeId              String
+  resume                Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobDescriptionId      String?
+  jobDescription        JobDescription? @relation(fields: [jobDescriptionId], references: [id], onDelete: SetNull)
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  overallScore          Int
+  formattingScore       Int
+  keywordScore          Int
+  skillScore            Int
+  experienceScore       Int
+  educationScore        Int
+  achievementsScore     Int
+  missingKeywords       String?   // JSON array as string
+  weakBulletPoints      String?   // JSON array as string
+  grammarSuggestions    String?   // JSON array as string
+  resumeSummary         String?
+  improvedBulletPoints  String?   // JSON object as string
+  atsRecommendations    String?   // JSON array as string
+  matchPercentage       Int?
+  matchReasons          String?   // JSON array as string
+  missingSkills         String?   // JSON array as string
+  matchingSkills        String?   // JSON array as string
+  status                String    @default("completed")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([resumeId])
+  @@index([userId])
+  @@index([jobDescriptionId])
+}

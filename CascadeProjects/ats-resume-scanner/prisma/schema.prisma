@@ -1,0 +1,238 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ResumeFileType {
+  PDF
+  DOCX
+}
+
+enum ScanStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  name              String?
+  photo             String?
+  firebaseUid       String?   @unique
+  role              UserRole  @default(USER)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  resumes           Resume[]
+  jobDescriptions   JobDescription[]
+  scanHistory       ScanHistory[]
+  feedback          Feedback[]
+  notifications     Notification[]
+  careerSuggestions CareerSuggestion[]
+}
+
+model Resume {
+  id                String         @id @default(uuid())
+  userId            String
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  fileName          String
+  fileType          ResumeFileType
+  fileUrl           String
+  fileSize          Int
+  
+  // Parsed Data
+  parsedName        String?
+  parsedEmail       String?
+  parsedPhone       String?
+  parsedSkills      String[]
+  parsedExperience  Json?
+  parsedEducation   Json?
+  parsedProjects    Json?
+  parsedCertifications String[]
+  parsedLanguages   String[]
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  scans             Scan[]
+  comparisons       ResumeComparisonA[] @relation("ResumeA")
+  comparisonsB      ResumeComparisonB[] @relation("ResumeB")
+}
+
+model JobDescription {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title             String
+  company           String?
+  description       String    @db.Text
+  requirements      String[]  @default([])
+  skills            String[]  @default([])
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  scans             Scan[]
+}
+
+model Scan {
+  id                String      @id @default(uuid())
+  resumeId          String
+  resume            Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  jobDescriptionId  String?
+  jobDescription    JobDescription? @relation(fields: [jobDescriptionId], references: [id], onDelete: SetNull)
+  
+  status            ScanStatus  @default(PENDING)
+  
+  // ATS Scores
+  overallScore      Float?
+  formattingScore   Float?
+  keywordScore      Float?
+  skillScore        Float?
+  experienceScore   Float?
+  educationScore    Float?
+  achievementsScore Float?
+  
+  // AI Analysis
+  missingKeywords   String[]    @default([])
+  weakBulletPoints  String[]    @default([])
+  grammarSuggestions String[]   @default([])
+  resumeSummary     String?     @db.Text
+  improvedBulletPoints Json?
+  atsRecommendations String[]   @default([])
+  
+  // Semantic Matching
+  matchPercentage   Float?
+  matchReasons      String[]    @default([])
+  missingSkills     String[]    @default([])
+  matchingSkills    String[]    @default([])
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  scanHistory       ScanHistory?
+}
+
+model ScanHistory {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanId            String    @unique
+  scan              Scan      @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  
+  version           Int       @default(1)
+  previousScore     Float?
+  currentScore      Float?
+  improvements      String[]  @default([])
+  
+  createdAt         DateTime  @default(now())
+}
+
+model ResumeComparison {
+  id                String    @id @default(uuid())
+  resumeAId         String
+  resumeA           Resume    @relation("ResumeA", fields: [resumeAId], references: [id], onDelete: Cascade)
+  resumeBId         String
+  resumeB           Resume    @relation("ResumeB", fields: [resumeBId], references: [id], onDelete: Cascade)
+  
+  improvements      String[]  @default([])
+  scoreDifference   Float?
+  analysis          String?   @db.Text
+  
+  createdAt         DateTime  @default(now())
+}
+
+model InterviewQuestion {
+  id                String    @id @default(uuid())
+  scanId            String?
+  
+  question          String    @db.Text
+  difficulty        String    // Easy, Medium, Hard
+  category          String?
+  suggestedAnswer   String?   @db.Text
+  
+  createdAt         DateTime  @default(now())
+}
+
+model CoverLetter {
+  id                String    @id @default(uuid())
+  userId            String
+  
+  resumeId          String?
+  jobDescriptionId  String?
+  
+  content           String    @db.Text
+  template          String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model CareerSuggestion {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type              String    // Course, Skill, Certification, Project
+  title             String
+  description       String?   @db.Text
+  url               String?
+  priority          Int       @default(0)
+  
+  createdAt         DateTime  @default(now())
+}
+
+model Feedback {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type              String
+  message           String    @db.Text
+  rating            Int?
+  
+  createdAt         DateTime  @default(now())
+}
+
+model Notification {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title             String
+  message           String    @db.Text
+  type              String
+  read              Boolean   @default(false)
+  
+  createdAt         DateTime  @default(now())
+}
+
+model Analytics {
+  id                String    @id @default(uuid())
+  date              DateTime  @default(now())
+  
+  dailyUploads      Int       @default(0)
+  monthlyUploads    Int       @default(0)
+  topSkills         String[]  @default([])
+  mostUploadedRoles String[]  @default([])
+  averageAtsScore   Float?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
