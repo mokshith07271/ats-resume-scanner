@@ -9,7 +9,6 @@ import api from '@/lib/axios';
 interface AuthContextType {
   user: any | null;
   loading: boolean;
-  loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   registerWithEmail: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -32,38 +31,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.warn('Profile fetch failed with existing token:', err);
         }
       }
-
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        if (firebaseUser) {
-          try {
-            const idToken = await firebaseUser.getIdToken();
-            const response = await api.post('/auth/google', { idToken });
-            localStorage.setItem('token', response.data.token);
-            setUser(response.data.user || firebaseUser);
-          } catch (error) {
-            console.error('Google auth error:', error);
-          }
-        }
-        setLoading(false);
-      });
-
-      return unsubscribe;
+      setLoading(false);
     };
 
-    let unsub: any;
-    initAuth().then((u) => { unsub = u; });
-
-    return () => { if (unsub) unsub(); };
+    initAuth();
   }, []);
-
-  const loginWithGoogle = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error('Google login error:', error);
-      throw error;
-    }
-  };
 
   const loginWithEmail = async (email: string, password: string) => {
     try {
@@ -103,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, loginWithEmail, registerWithEmail, logout }}>
+    <AuthContext.Provider value={{ user, loading, loginWithEmail, registerWithEmail, logout }}>
       {children}
     </AuthContext.Provider>
   );
