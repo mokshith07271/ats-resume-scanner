@@ -7,18 +7,38 @@ import { logger } from '../config';
 export class AuthService {
   async registerWithEmail(email: string, password: string, name?: string) {
     try {
-      // Create user in Firebase
-      const firebaseUser = await auth.createUser({
-        email,
-        password,
-        displayName: name,
-      });
+      const cleanEmail = email.toLowerCase().trim();
+      const existingUser = await userRepository.findByEmail(cleanEmail);
+      if (existingUser) {
+        throw new AppError('Email already exists', 400);
+      }
+
+      let firebaseUid = `uid_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+      // Try creating user in Firebase if admin is initialized
+      try {
+        if (auth && typeof auth.createUser === 'function') {
+          const firebaseUser = await auth.createUser({
+            email: cleanEmail,
+            password,
+            displayName: name,
+          });
+          if (firebaseUser?.uid) {
+            firebaseUid = firebaseUser.uid;
+          }
+        }
+      } catch (fbErr: any) {
+        logger.warn('Firebase user registration fallback:', fbErr.message);
+        if (fbErr.code === 'auth/email-already-exists') {
+          throw new AppError('Email already exists', 400);
+        }
+      }
 
       // Create user in database
       const user = await userRepository.create({
-        email,
+        email: cleanEmail,
         name,
-        firebaseUid: firebaseUser.uid,
+        firebaseUid,
         role: 'USER',
       });
 
@@ -28,10 +48,10 @@ export class AuthService {
       return { user, token };
     } catch (error: any) {
       logger.error('Registration error:', error);
-      if (error.code === 'auth/email-already-exists') {
-        throw new AppError('Email already exists', 400);
+      if (error instanceof AppError) {
+        throw error;
       }
-      throw new AppError('Registration failed', 500);
+      throw new AppError('Registration failed: ' + (error.message || 'Server error'), 500);
     }
   }
 
