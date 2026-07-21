@@ -72,7 +72,7 @@ export default function SignUpPage() {
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
+                placeholder="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
