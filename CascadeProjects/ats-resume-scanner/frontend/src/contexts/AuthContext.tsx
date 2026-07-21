@@ -1,20 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import {
-  User,
-  signInWithRedirect,
-  getRedirectResult,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
-import api from '@/lib/axios';
+
+export interface UserProfile {
+  email: string;
+  displayName?: string;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
@@ -25,76 +19,63 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Process Google OAuth redirect login result if returning from redirect
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
-        }
-      })
-      .catch((err) => {
-        console.error('Redirect result error:', err);
-      });
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
+    // Restore user session from localStorage if present
+    if (typeof window !== 'undefined') {
+      const savedUser = localStorage.getItem('ats_user');
+      if (savedUser) {
         try {
-          const idToken = await firebaseUser.getIdToken();
-          const response = await api.post('/auth/google', { idToken });
-          if (response?.data?.token) {
-            localStorage.setItem('token', response.data.token);
-          }
-        } catch (error) {
-          console.warn('Backend token sync optional/offline:', error);
-        }
-      } else {
-        setUser(null);
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
+          setUser(JSON.parse(savedUser));
+        } catch {
+          localStorage.removeItem('ats_user');
         }
       }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    }
+    setLoading(false);
   }, []);
 
-  const loginWithGoogle = () => {
-    // Synchronous execution inside click gesture prevents pop-up/redirect blockers
-    return signInWithRedirect(auth, googleProvider);
+  const saveUserSession = (userObj: UserProfile) => {
+    setUser(userObj);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ats_user', JSON.stringify(userObj));
+      localStorage.setItem('token', 'free-user-session-token');
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    const mockGoogleUser = {
+      email: 'user@gmail.com',
+      displayName: 'Google User',
+    };
+    saveUserSession(mockGoogleUser);
   };
 
   const loginWithEmail = async (email: string, password: string) => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error('Email login error:', error);
-      throw error;
-    }
+    const username = email.split('@')[0] || 'User';
+    const formattedName = username.charAt(0).toUpperCase() + username.slice(1);
+    saveUserSession({
+      email,
+      displayName: formattedName,
+    });
   };
 
   const signUpWithEmail = async (email: string, password: string) => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error('Email signup error:', error);
-      throw error;
-    }
+    const username = email.split('@')[0] || 'User';
+    const formattedName = username.charAt(0).toUpperCase() + username.slice(1);
+    saveUserSession({
+      email,
+      displayName: formattedName,
+    });
   };
 
   const logout = async () => {
-    try {
-      await signOut(auth);
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
+    setUser(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('ats_user');
+      localStorage.removeItem('token');
     }
   };
 
