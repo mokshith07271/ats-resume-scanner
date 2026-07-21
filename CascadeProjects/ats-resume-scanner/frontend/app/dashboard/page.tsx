@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Upload, History, User as UserIcon, LogOut, Plus } from 'lucide-react';
+import { FileText, Upload, History, LogOut } from 'lucide-react';
 
 interface ResumeStats {
   totalScans: number;
@@ -70,10 +70,6 @@ export default function DashboardPage() {
             ATS Resume Scanner
           </h1>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => router.push('/profile')}>
-              <UserIcon className="mr-2 h-4 w-4" />
-              Profile
-            </Button>
             <Button variant="outline" onClick={logout}>
               <LogOut className="mr-2 h-4 w-4" />
               Logout
@@ -84,7 +80,7 @@ export default function DashboardPage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, {user.displayName || 'User'}!</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome to your Dashboard</h2>
           <p className="text-muted-foreground">Here&apos;s an overview of your resume scans</p>
         </div>
 
