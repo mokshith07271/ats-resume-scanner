@@ -35,12 +35,12 @@ export class ResumeRepository {
     parsedName?: string;
     parsedEmail?: string;
     parsedPhone?: string;
-    parsedSkills?: string[];
+    parsedSkills?: any;
     parsedExperience?: any;
     parsedEducation?: any;
     parsedProjects?: any;
-    parsedCertifications?: string[];
-    parsedLanguages?: string[];
+    parsedCertifications?: any;
+    parsedLanguages?: any;
   }) {
     return prisma.resume.create({
       data: data as any,

@@ -59,12 +59,12 @@ model Resume {
   parsedName        String?
   parsedEmail       String?
   parsedPhone       String?
-  parsedSkills      String[]
-  parsedExperience  Json?
-  parsedEducation   Json?
-  parsedProjects    Json?
-  parsedCertifications String[]
-  parsedLanguages   String[]
+  parsedSkills      String?
+  parsedExperience  String?
+  parsedEducation   String?
+  parsedProjects    String?
+  parsedCertifications String?
+  parsedLanguages   String?
   
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
