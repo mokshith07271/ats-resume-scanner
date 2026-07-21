@@ -33,7 +33,7 @@ export class ResumeService {
         logger.warn('Firebase storage upload failed, falling back to local storage:', storageError);
         const path = require('path');
         const fs = require('fs');
-        const uploadsDir = path.join(__dirname, '../../../../uploads');
+        const uploadsDir = path.join(process.cwd(), 'uploads');
         if (!fs.existsSync(uploadsDir)) {
           fs.mkdirSync(uploadsDir, { recursive: true });
         }
@@ -46,7 +46,7 @@ export class ResumeService {
       // Parse resume
       const parsedData = await parseResume(file.buffer, file.mimetype);
 
-      // Save to database with stringified JSON fields for SQLite compatibility
+      // Save to database
       const resume = await resumeRepository.create({
         userId,
         fileName: file.originalname,
@@ -72,9 +72,10 @@ export class ResumeService {
         logger.warn('Auto ATS scan error:', scanError);
         return resume;
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Resume upload error:', error);
-      throw new AppError('Failed to upload resume', 500);
+      const msg = error.message || (typeof error === 'string' ? error : 'Failed to upload resume');
+      throw new AppError(`Failed to upload resume: ${msg}`, error.statusCode || 500);
     }
   }
 
