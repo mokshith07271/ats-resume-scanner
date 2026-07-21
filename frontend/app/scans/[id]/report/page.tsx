@@ -37,7 +37,7 @@ export default function ReportPage() {
 
   const fetchData = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api').trim().replace(/\/+$/, '');
       const response = await fetch(`${backendUrl}/resumes/${scanId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -56,7 +56,7 @@ export default function ReportPage() {
 
   const fetchScansList = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api').trim().replace(/\/+$/, '');
       const response = await fetch(`${backendUrl}/resumes`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,

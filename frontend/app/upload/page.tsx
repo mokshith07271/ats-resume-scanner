@@ -57,7 +57,7 @@ export default function UploadPage() {
     }
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api').trim().replace(/\/+$/, '');
       const token = localStorage.getItem('token');
       const response = await fetch(`${backendUrl}/resumes/upload`, {
         method: 'POST',

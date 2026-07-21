@@ -57,7 +57,7 @@ export default function ScanDetailPage({ params }: { params: Promise<{ id: strin
 
   const fetchScanDetails = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api').trim().replace(/\/+$/, '');
       const response = await fetch(`${backendUrl}/resumes/${scanId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -79,7 +79,7 @@ export default function ScanDetailPage({ params }: { params: Promise<{ id: strin
     setIsRescanning(true);
     try {
       const targetResumeId = data.id || data.resumeId || data.resume?.id || scanId;
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api').trim().replace(/\/+$/, '');
       const response = await fetch(`${backendUrl}/resumes/${targetResumeId}/scan`, {
         method: 'POST',
         headers: {
@@ -101,7 +101,7 @@ export default function ScanDetailPage({ params }: { params: Promise<{ id: strin
     if (!confirm('Are you sure you want to delete this resume and all scan records?')) return;
     try {
       const targetResumeId = data?.id || data?.resumeId || data?.resume?.id || scanId;
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api').trim().replace(/\/+$/, '');
       const response = await fetch(`${backendUrl}/resumes/${targetResumeId}`, {
         method: 'DELETE',
         headers: {
