@@ -26,10 +26,10 @@ app.use(
   })
 );
 
-// CORS
+// CORS - allow Vercel production frontend and local frontend
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: true,
     credentials: true,
   })
 );
