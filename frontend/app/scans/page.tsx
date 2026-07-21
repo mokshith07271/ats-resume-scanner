@@ -42,7 +42,7 @@ export default function ScansPage() {
 
   const fetchScans = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api';
       const response = await fetch(`${backendUrl}/resumes`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -71,7 +71,7 @@ export default function ScansPage() {
     e.stopPropagation();
     if (!confirm('Are you sure you want to delete this scan and resume record?')) return;
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000/api';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://ats-resume-scanner-wmg2.onrender.com/api';
       const response = await fetch(`${backendUrl}/resumes/${id}`, {
         method: 'DELETE',
         headers: {
