@@ -26,13 +26,14 @@ export class UserRepository {
 
   async create(data: {
     email: string;
+    password?: string;
     name?: string;
     firebaseUid?: string;
     photo?: string;
     role?: string;
   }) {
     return prisma.user.create({
-      data,
+      data: data as any,
     });
   }
 

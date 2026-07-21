@@ -37,6 +37,7 @@ export class AuthService {
       // Create user in database
       const user = await userRepository.create({
         email: cleanEmail,
+        password,
         name,
         firebaseUid,
         role: 'USER',
@@ -62,6 +63,10 @@ export class AuthService {
 
       if (!user) {
         throw new AppError('No account found with this email address. Please sign up first.', 404);
+      }
+
+      if (user.password && user.password !== password) {
+        throw new AppError('Invalid password. Please check your credentials.', 401);
       }
 
       // Generate JWT token
